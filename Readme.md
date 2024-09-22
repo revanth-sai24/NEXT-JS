@@ -57,6 +57,6 @@
 - All our routes need to be create in app folder only where each file name will act as the route in the app.
 - Each route need to create as folder inside that folder will create a `page.jsx` file that will server as our route.
 - For an Instance If I want to create a about route `I need to create a about folder in app then inside the about folder I will create a page.jsx where I'll keep my about screen code`
-    export default function About(){
+`    export default function About(){
     return <div>About</div>
-    }
+    }`
