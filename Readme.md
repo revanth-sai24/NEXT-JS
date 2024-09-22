@@ -10,9 +10,9 @@
         6. Optimization
         7. Dev and prod build system
 ## Creating a Next App
-- To create a Next app
+# To create a Next app
     - npx create-next-app@latest
-- After entering the command will the prompts to create the app.
+# After entering the command will the prompts to create the app.
     - Give the Project name
     - Select the Yes/ No for using typescript (No)
     - Select the Yes/ No for using eslint (Yes)
