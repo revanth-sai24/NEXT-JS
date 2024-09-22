@@ -10,4 +10,13 @@
         6. Optimization
         7. Dev and prod build system
 ## Creating a Next App
-    - npx create-next-app
+- To create a Next app
+    - npx create-next-app@latest
+- After entering the command will the prompts to create the app.
+    - Give the Project name
+    - Select the Yes/ No for using typescript (No)
+    - Select the Yes/ No for using eslint (Yes)
+    - Select the Yes/ No for using tailwind-css (Yes)
+    - Select the Yes/ No for using src directory (Yes)
+    - Select the Yes/ No for using App Router (Yes)
+    - Select the Yes/ No for customize the default import alias (No)
