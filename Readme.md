@@ -11,7 +11,7 @@
         6. Optimization
         7. Dev and prod build system
 
-## Creating a Next App
+## Creating a Next App Process & Start.
 
 ### To create a Next app
 
@@ -38,3 +38,15 @@
 - `.next` folder is generated when we start or build the application the app serves from this folder.
 - `src` folder contains our app code.
 - `public` folder contains the static file where we can store the images and svg's.
+
+## React Server Components (RSC)
+- The RSC introduces new way of creating the React components, splitting them into two ways.
+    - Server Component:
+        - In Next JS all the components are server components by default.
+        - The have ability to fetch data and reading files
+        - they can't use the Hooks or handle user interactions.
+    - Client Component:
+        - to create a client component we need to use `use client` at the top of the file
+        - It can use the Hooks but not able to rad files.
+
+
