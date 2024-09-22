@@ -9,4 +9,5 @@
         5. Styling
         6. Optimization
         7. Dev and prod build system
-# 
+## Creating a Next App
+    - npx create-next-app
