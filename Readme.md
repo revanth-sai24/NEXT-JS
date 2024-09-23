@@ -72,13 +72,16 @@
 ```
 
 ```javascript
-export default function About(){
-    return <div>About</div>
+export default function About() {
+  return <div>About</div>;
 }
 ```
+
 ### Nested Routing:
+
 - `/blog` and `/blog/first` and `/blog/second`
-- If we want to create a nested route we need to create a blog folder in app folder inside that we will create page.jsx and one and second folder with page.jsx each 
+- If we want to create a nested route we need to create a blog folder in app folder inside that we will create page.jsx and one and second folder with page.jsx each
+
 ```
 /app
   |-- /blog
@@ -88,54 +91,111 @@ export default function About(){
        |--/second
             |--page.jsx
 ```
+
 ### Dynamic Routing:
+
 - We will create a dynamic routing using `Square brackets []`
+- If we want to implement the products
+- Here thr[productId] folder will act as dynamic routes..
 
+```
+/app
+  |-- /products
+  |    |-- page.jsx
+       |--/[productId]
+            |--page.jsx
+```
 
+- Every page in Next will get the params as default were we can get the productId dynamically
 
+```javascript
+export default function ProductDetails({ params }) {
+  return <div>{params.productId}</div>; // here the productId will get dynamically based on the route
+}
+```
 
+### Nested Dynamic Routing:
 
+```
+- /app
+  |-- /products
+  |    |-- page.jsx
+       |--/[productId]
+            |--page.jsx
+            |--/reviews
+                |--/[reviewId]
+                    |--page.jsx
+```
 
+- Create a products folder where it contains the page.jsx along with that we have dynamic productId folder inside that need to create a review folder along with that create a page.jsx nd create one more folder as dynamic folder as reviewId and create a page.jsx for that
+- `/products/1reviews/1`
 
+### Catch All Segments:
 
+- Where If we are having many routes to handle there we can utilize this routing [`Eg: documentations were we will have n no.of routes `]
+- There is special syntax to handle this kind of routing
+- So based on the routes and params we need to display the text based on the route parameters.
 
+```
+/app
+  |-- /docs
+       |--/[...slug] //format
+              |-- page.jsx
+```
 
+- page.jsx code
 
+```javascript
+function const Content({params}){
+  const slugLen = params?.slug.length
+  if(slugLen === 2){
+    return "docs for the Feature"+params?.slug[0] + "and concept" + params.slug[1]
+  }else if(slugLen === 1){
+    return "docs for feature" + params.slug[0]
+  }else{
+    return "Mai doc page"
+  }
 
+}
+```
+### 404- Not FOund Page:
+- In Next by default we have a 404 page that handles the undefined routes in the app 
+- If we want to modify we can save the file as not-found.jsx in app folder
+- we can add our own custom styles...
+- If we want to render the not-found page dynamically (For Example if we don't want display the product page more than 10 the we can display the not-found page)
+- Then we need to create a not-found file in the reviews folder and we can modify accordingly
 
+```javascript
+export default function NotFound(){
+  return "Not Found"
+}
+```
 
+```javascript
+import {notFound} from 'next/navigation'
 
+//for the reviews folder in the app
 
+export default function ReviewDetails({params}){
+  if (params?.reviewId  > 10){
+    notFound() //calling programmatically
+    return 
+  }
+  return <div>{params?.reviewId}</div>
+}
 
+```
 
+### Private Folders:
+- It is a feature that Next provides where the folders and sub-folders are excluded from the routing for the private implementations.
+- To create a private folder we need to use the underscore at start of the folder `_utils`
+- If we try to access it will show as 404 not found.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
+/app
+  |-- /_utils
+        |-- page.jsx
+```
+### Route Groups:
+- It allows us to logically to group our routes and project files without affecting the url path structure.
+- stops -- 13 video
