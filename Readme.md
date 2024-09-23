@@ -76,6 +76,21 @@ export default function About(){
     return <div>About</div>
 }
 ```
+### Nested Routing:
+- `/blog` and `/blog/first` and `/blog/second`
+- If we want to create a nested route we need to create a blog folder in app folder inside that we will create page.jsx and one and second folder with page.jsx each 
+```
+/app
+  |-- /blog
+  |    |-- page.jsx
+       |--/one
+            |--page.jsx
+       |--/second
+            |--page.jsx
+```
+### Dynamic Routing:
+- We will create a dynamic routing using `Square brackets []`
+
 
 
 
