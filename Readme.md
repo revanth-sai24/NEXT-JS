@@ -198,4 +198,34 @@ export default function ReviewDetails({params}){
 ```
 ### Route Groups:
 - It allows us to logically to group our routes and project files without affecting the url path structure.
-- stops -- 13 video
+- We can create the authenticatio routes as route groups.
+- we can create a auth folder and inside that we can create register,login and forgot screens
+- So here we can mark the auth folder as route group to do that we need to wrap the folder name with parentheses so while accessing the register route we can directely access as /register instead of /auth/register
+
+```
+/app
+  |-- /(auth)
+        |--/Register
+              |--page.jsx
+        |--/Login
+              |--page.jsx
+        |--/forgot
+              |--page.jsx
+```
+
+## Layouts:
+- A layout is UI shared b/w multiple pages in app
+- when ever we create a component every component will render through the layout to get common page layout.
+- In Next we have a file called layout.jsx there we can define out application layout.
+
+### Nested Layouts:
+- We can create the nested layouts for our required components like i can create a new layout for the product and create one more layout for the cart.
+- we need to create a file as layout.jsx in the product id folder along with page.jsx
+
+### Route Group Layouts:
+- we can create a group layouts for the group routes so that will not affect other urls and ui 
+- Reference [`https://www.youtube.com/watch?v=V5GKwuzKQV0&list=PLC3y8-rFHvwjOKd6gdf4QtV1uYNiQnruI&index=16`]
+
+
+
+
