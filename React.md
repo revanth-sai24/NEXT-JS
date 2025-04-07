@@ -1422,3 +1422,445 @@ const [isPending, startTransition] = useTransition();
 
 Understanding these core concepts provides a solid foundation for mastering React and building efficient, maintainable applications.
 
+
+# React 19 Features
+
+React 19 brings several major improvements and new features to the React ecosystem. Here's an overview of the most significant additions:
+
+## Actions (Server Functions)
+
+React 19 introduces Actions, which are server functions that can be called directly from client components (similar to Server Actions in Next.js, but now built into React itself).
+
+```jsx
+// ServerComponent.jsx
+"use server";
+
+export async function submitForm(formData) {
+  const name = formData.get("name");
+  const email = formData.get("email");
+
+  // Server-side validation
+  if (!name || !email) {
+    return { success: false, error: "Name and email are required" };
+  }
+
+  // Server-side operations (database access, etc.)
+  await saveToDatabase({ name, email });
+
+  return { success: true };
+}
+
+// ClientComponent.jsx
+("use client");
+import { submitForm } from "./ServerComponent";
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button disabled={pending}>{pending ? "Submitting..." : "Submit"}</button>
+  );
+}
+
+function ContactForm() {
+  return (
+    <form action={submitForm}>
+      <input name="name" required />
+      <input name="email" type="email" required />
+      <SubmitButton />
+    </form>
+  );
+}
+```
+
+## `use` Hook
+
+A new primitive hook for consuming promises, resources, and contexts. It's designed to work with async/await and Suspense.
+
+```jsx
+import { use } from "react";
+
+// Using with promises
+function ProfilePage({ userId }) {
+  const user = use(fetchUser(userId));
+  return <h1>{user.name}</h1>;
+}
+
+// Using with context (alternative to useContext)
+function ThemeText() {
+  const theme = use(ThemeContext);
+  return <p style={{ color: theme.color }}>Themed text</p>;
+}
+
+// With async/await in components
+async function CommentSection({ postId }) {
+  const comments = await fetchComments(postId);
+  return (
+    <div>
+      {comments.map((comment) => (
+        <Comment key={comment.id} comment={comment} />
+      ))}
+    </div>
+  );
+}
+```
+
+## `useOptimistic` Hook
+
+Enables optimistic UI updates before server operations complete.
+
+```jsx
+import { useOptimistic } from "react";
+import { addComment } from "./actions";
+
+function CommentSection({ comments, postId }) {
+  const [optimisticComments, addOptimisticComment] = useOptimistic(
+    comments,
+    (state, newComment) => [...state, newComment]
+  );
+
+  async function handleSubmit(formData) {
+    const content = formData.get("comment");
+
+    // Create optimistic version
+    const optimisticComment = {
+      id: "temp-id",
+      content,
+      author: "Current User",
+      pending: true,
+    };
+
+    // Update UI optimistically
+    addOptimisticComment(optimisticComment);
+
+    // Perform actual server action
+    await addComment(postId, content);
+  }
+
+  return (
+    <div>
+      <div className="comments-list">
+        {optimisticComments.map((comment) => (
+          <div key={comment.id} className={comment.pending ? "pending" : ""}>
+            <p>{comment.content}</p>
+            <span>{comment.author}</span>
+          </div>
+        ))}
+      </div>
+
+      <form action={handleSubmit}>
+        <textarea name="comment" placeholder="Add a comment..." />
+        <button type="submit">Post</button>
+      </form>
+    </div>
+  );
+}
+```
+
+## Document Metadata
+
+React 19 includes built-in support for managing document metadata (similar to Next.js Head but built into React).
+
+```jsx
+import { Html, Head, Body, Title, Meta } from "react";
+
+function App() {
+  return (
+    <Html lang="en">
+      <Head>
+        <Title>My React Application</Title>
+        <Meta name="description" content="A React 19 application" />
+        <Meta property="og:title" content="My React Application" />
+        <link rel="stylesheet" href="/styles.css" />
+      </Head>
+      <Body>
+        <main>
+          <h1>Welcome to my app</h1>
+          <p>This app uses React 19 document metadata features</p>
+        </main>
+      </Body>
+    </Html>
+  );
+}
+```
+
+## Asset Loading
+
+Built-in APIs for managing and preloading assets like stylesheets, fonts, and scripts.
+
+```jsx
+import { preload, preloadModule } from "react";
+
+// Preload a resource
+preload("/api/data.json", { as: "fetch" });
+
+// Preload a stylesheet
+preload("/styles/home.css", { as: "style" });
+
+// Preload a font
+preload("/fonts/Inter.woff2", { as: "font", crossOrigin: "anonymous" });
+
+// Preload a JavaScript module
+preloadModule("./features/Dashboard.js");
+
+function App() {
+  return (
+    <div>
+      {/* The resources are already loading when needed */}
+      <link rel="stylesheet" href="/styles/home.css" />
+    </div>
+  );
+}
+```
+
+## React Compiler (formerly React Forget)
+
+A new compiler that automatically memoizes components and values, reducing the need for manual React.memo, useMemo, and useCallback calls.
+
+```jsx
+// Before React Compiler
+function ProfileCard({ user, onEdit }) {
+  // Need manual memoization
+  const fullName = useMemo(() => {
+    return `${user.firstName} ${user.lastName}`;
+  }, [user.firstName, user.lastName]);
+
+  const handleEdit = useCallback(() => {
+    onEdit(user.id);
+  }, [onEdit, user.id]);
+
+  return (
+    <div>
+      <h2>{fullName}</h2>
+      <Button onClick={handleEdit}>Edit</Button>
+    </div>
+  );
+}
+
+// With React Compiler
+function ProfileCard({ user, onEdit }) {
+  // Automatically memoized when needed
+  const fullName = `${user.firstName} ${user.lastName}`;
+
+  const handleEdit = () => {
+    onEdit(user.id);
+  };
+
+  return (
+    <div>
+      <h2>{fullName}</h2>
+      <Button onClick={handleEdit}>Edit</Button>
+    </div>
+  );
+}
+```
+
+## Enhanced React Server Components
+
+Improved Server Components architecture with better integration between client and server components.
+
+```jsx
+// ServerComponent.jsx
+export default async function ProductDetails({ productId }) {
+  // Data fetching on the server
+  const product = await fetchProductDetails(productId);
+
+  return (
+    <div className="product-details">
+      <h1>{product.name}</h1>
+      <p>{product.description}</p>
+      <p className="price">${product.price.toFixed(2)}</p>
+
+      {/* Client component for interactivity */}
+      <AddToCartButton productId={product.id} />
+    </div>
+  );
+}
+
+// AddToCartButton.jsx
+'use client';
+import { useState } from 'react';
+
+export default function AddToCartButton({ productId }) {
+  const [isAdded, setIsAdded] = useState(false);
+
+  function handleAddToCart() {
+    addToCart(productId);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  }
+
+  return (
+    <button onClick={handleAddToCart} disabled={isAdded}>
+      {isAdded ? 'Added to Cart!' : 'Add to Cart'}
+    </button>
+  );
+}
+```
+
+## React Cache API
+
+A built-in caching mechanism for storing and retrieving data.
+
+```jsx
+import { cache } from "react";
+
+// Create a cached function
+const fetchUserData = cache(async (userId) => {
+  const response = await fetch(`/api/users/${userId}`);
+  return response.json();
+});
+
+// Use in a component
+function UserProfile({ userId }) {
+  const userData = use(fetchUserData(userId));
+
+  return (
+    <div className="profile">
+      <h2>{userData.name}</h2>
+      <p>{userData.email}</p>
+    </div>
+  );
+}
+```
+
+## Web Components Integration
+
+Improved support for working with Web Components in React applications.
+
+```jsx
+import { useState } from "react";
+
+// Better handling of custom events and properties
+function MyWebComponentWrapper() {
+  const [value, setValue] = useState("");
+
+  return (
+    <div>
+      <custom-slider
+        min="0"
+        max="100"
+        value={value}
+        onchange={(e) => setValue(e.target.value)}
+      />
+      <p>Current value: {value}</p>
+    </div>
+  );
+}
+
+// Using a Web Component in React
+import "my-web-components";
+
+function App() {
+  return (
+    <div>
+      <h1>My Application</h1>
+      <my-custom-element
+        name="React 19"
+        options={JSON.stringify({ theme: "dark" })}
+      />
+    </div>
+  );
+}
+```
+
+## Improved Automatic Batching
+
+React 18 introduced automatic batching of state updates, and React 19 improves this further with more consistent batching behavior.
+
+```jsx
+function UserActions() {
+  const [count, setCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [status, setStatus] = useState("idle");
+
+  function handleAction() {
+    // All of these updates trigger just one render in React 19
+    setCount((c) => c + 1);
+    setNotifications((n) => [...n, "New notification"]);
+    setStatus("active");
+
+    // Even updates inside event callbacks and promises are batched
+    setTimeout(() => {
+      setCount((c) => c + 1);
+      setStatus("completed");
+    }, 1000);
+  }
+
+  return <button onClick={handleAction}>Perform Actions</button>;
+}
+```
+
+## Enhanced Streaming SSR
+
+Improved Server-Side Rendering with better streaming capabilities.
+
+```jsx
+import { renderToPipeableStream } from "react-dom/server";
+
+function handleRequest(req, res) {
+  const { pipe } = renderToPipeableStream(<App />, {
+    bootstrapScripts: ["/main.js"],
+    onShellReady() {
+      // Stream the shell as soon as possible
+      res.setHeader("Content-Type", "text/html");
+      pipe(res);
+    },
+    onAllReady() {
+      // Optional: if you want to wait for all Suspense boundaries
+      console.log("All content ready");
+    },
+  });
+}
+```
+
+## Full TypeScript Integration
+
+React 19 includes improved TypeScript integration with better type inference and type checking.
+
+```tsx
+// More precise typing for hooks and components
+function UserProfile<T extends { name: string; email: string }>({
+  user,
+}: {
+  user: T;
+}) {
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+
+// Better type inference for props
+type ButtonProps = {
+  variant?: "primary" | "secondary" | "danger";
+  size?: "small" | "medium" | "large";
+  onClick?: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+};
+
+function Button({
+  variant = "primary",
+  size = "medium",
+  onClick,
+  disabled,
+  children,
+}: ButtonProps) {
+  return (
+    <button
+      className={`btn btn-${variant} btn-${size}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+These features represent significant improvements to the React ecosystem, making it easier to build performant, maintainable applications with better developer experience.
+
+
