@@ -1,5 +1,3 @@
-# CodeAutomation
-
 # Advanced React Concepts
 
 This guide covers advanced React concepts that developers should understand to build efficient and scalable applications.
