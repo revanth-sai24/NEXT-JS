@@ -1002,3 +1002,429 @@ Secondary.args = {
 - Cross-team component sharing and visualization
 - Visual regression testing setups
 - Component development in isolation before integration
+
+
+  # CodeAutomation
+
+# Core React Concepts
+
+This section covers fundamental React concepts that are essential for understanding how React works under the hood.
+
+## Virtual DOM
+
+The Virtual DOM is a lightweight JavaScript representation of the actual DOM. React uses this abstraction to minimize expensive DOM operations and improve performance.
+
+```jsx
+// React creates and manages a Virtual DOM representation
+// of your components instead of directly manipulating the browser DOM
+function App() {
+  return (
+    <div>
+      <h1>Hello World</h1>
+      <p>This is rendered in the Virtual DOM first</p>
+    </div>
+  );
+}
+```
+
+**How it works:**
+
+1. React creates a Virtual DOM tree when components render
+2. When state or props change, React creates a new Virtual DOM tree
+3. React compares the new and old Virtual DOM trees (diffing)
+4. Only the necessary changes are applied to the real DOM (patching)
+
+**Benefits:**
+
+- Batches DOM updates for better performance
+- Abstracts browser inconsistencies
+- Enables declarative programming model
+- Powers React's cross-platform capabilities
+
+## Reconciliation
+
+Reconciliation is the algorithm React uses to compare two Virtual DOM trees and determine which parts need to be updated.
+
+```jsx
+// When state changes, React reconciles the difference
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+```
+
+**Key concepts:**
+
+- **Diffing algorithm**: O(n) implementation comparing tree elements
+- **Key prop**: Helps React identify which items have changed, been added, or removed in lists
+- **Component type matching**: React preserves state when component types match
+
+**Best practices:**
+
+- Use stable component identity (avoid inline function components)
+- Provide unique, stable keys for list items
+- Use PureComponent or React.memo for performance optimization
+- Preserve DOM nodes when possible with key attributes
+
+## Fiber Architecture
+
+React Fiber is a complete rewrite of React's core algorithm to enable incremental rendering and improve performance for complex applications.
+
+**Key features:**
+
+- **Incremental rendering**: Split rendering work into chunks
+- **Priority levels**: Handle high-priority updates first (like user input)
+- **Pausable**: Can pause work to handle more urgent tasks
+- **Reusable**: Can reuse previously completed work
+- **Abortable**: Can abort work that's no longer needed
+
+**Benefits:**
+
+- Smoother user experience in complex applications
+- Better responsiveness for user interactions
+- Foundation for Concurrent Mode and Suspense
+
+## Debouncing and Throttling
+
+Techniques to control how many times we execute a function, especially for performance-intensive events.
+
+```jsx
+// Debounce example for search input
+import { useState, useEffect, useCallback } from "react";
+
+function SearchComponent() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+  const [results, setResults] = useState([]);
+
+  // Update search term immediately for responsive UI
+  const handleChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Debounce the API call
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedTerm(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Perform search with debounced value
+  useEffect(() => {
+    if (debouncedTerm) {
+      fetchResults(debouncedTerm).then((data) => {
+        setResults(data);
+      });
+    }
+  }, [debouncedTerm]);
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleChange}
+        placeholder="Search..."
+      />
+      <ul>
+        {results.map((item) => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+**Debouncing vs. Throttling:**
+
+- **Debouncing**: Delays executing a function until after a certain amount of time has passed since it was last invoked
+- **Throttling**: Limits how often a function can be called in a given time period
+
+**Custom hooks for debouncing and throttling:**
+
+```jsx
+// Custom debounce hook
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+// Custom throttle hook
+function useThrottle(value, limit) {
+  const [throttledValue, setThrottledValue] = useState(value);
+  const lastRan = useRef(Date.now());
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (Date.now() - lastRan.current >= limit) {
+        setThrottledValue(value);
+        lastRan.current = Date.now();
+      }
+    }, limit - (Date.now() - lastRan.current));
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, limit]);
+
+  return throttledValue;
+}
+```
+
+## Render Props vs. Hooks
+
+A comparison of two patterns for sharing logic between components.
+
+**Render Props Example:**
+
+```jsx
+function MouseTracker({ render }) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    function handleMouseMove(event) {
+      setPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+    }
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
+  return render(position);
+}
+
+// Usage
+<MouseTracker
+  render={({ x, y }) => (
+    <div>
+      <h1>Mouse position:</h1>
+      <p>
+        X: {x}, Y: {y}
+      </p>
+    </div>
+  )}
+/>;
+```
+
+**Equivalent Hook:**
+
+```jsx
+function useMousePosition() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    function handleMouseMove(event) {
+      setPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+    }
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
+  return position;
+}
+
+// Usage
+function MouseDisplay() {
+  const { x, y } = useMousePosition();
+
+  return (
+    <div>
+      <h1>Mouse position:</h1>
+      <p>
+        X: {x}, Y: {y}
+      </p>
+    </div>
+  );
+}
+```
+
+## Event System in React
+
+React implements a synthetic event system that normalizes events across browsers.
+
+```jsx
+function Button() {
+  const handleClick = (e) => {
+    // 'e' is a synthetic event
+    e.preventDefault();
+    console.log("Button clicked");
+
+    // Access native event if needed
+    const nativeEvent = e.nativeEvent;
+  };
+
+  return <button onClick={handleClick}>Click me</button>;
+}
+```
+
+**Key features:**
+
+- Cross-browser compatibility
+- Event pooling (pre-React 17)
+- Automatic event delegation
+- Support for custom events
+
+## React Strict Mode
+
+A development mode tool that helps identify potential problems.
+
+```jsx
+import { StrictMode } from "react";
+
+function App() {
+  return (
+    <StrictMode>
+      <MainComponent />
+    </StrictMode>
+  );
+}
+```
+
+**What it checks:**
+
+- Identifying components with unsafe lifecycles
+- Warning about legacy string ref API usage
+- Detecting unexpected side effects
+- Detecting legacy context API
+- Double-invoking functions (render, effects) to find issues
+
+## React Under the Hood
+
+### Component Lifecycle
+
+The sequence of phases a component goes through:
+
+1. **Mounting**:
+
+   - `constructor()`
+   - `static getDerivedStateFromProps()`
+   - `render()`
+   - `componentDidMount()`
+
+2. **Updating**:
+
+   - `static getDerivedStateFromProps()`
+   - `shouldComponentUpdate()`
+   - `render()`
+   - `getSnapshotBeforeUpdate()`
+   - `componentDidUpdate()`
+
+3. **Unmounting**:
+
+   - `componentWillUnmount()`
+
+4. **Error Handling**:
+   - `static getDerivedStateFromError()`
+   - `componentDidCatch()`
+
+### Hooks Implementation
+
+Hooks are implemented using a linked list within React's internal data structures:
+
+- Each hook call in a component gets its own "cell" in a list
+- The order of hook calls must remain consistent between renders
+- React uses this list to preserve state between renders
+
+### Batching Updates
+
+React batches state updates to minimize renders and improve performance:
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    // These updates are batched in React 18+
+    setCount((c) => c + 1);
+    setCount((c) => c + 1);
+    setCount((c) => c + 1);
+    // Result: count increases by 3
+
+    // Batching even works outside React event handlers in React 18+
+    setTimeout(() => {
+      setCount((c) => c + 1);
+      setCount((c) => c + 1);
+      // Still batched in React 18
+    }, 1000);
+  }
+
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
+```
+
+## React DevTools
+
+Browser extension for inspecting React component hierarchies and profiling performance.
+
+**Features:**
+
+- Component tree inspection
+- Props and state examination
+- Component filtering
+- Performance profiling
+- Highlight updates
+- Component timing measurements
+
+## Concurrent Features
+
+React 18 introduced several concurrent features for building responsive user interfaces:
+
+1. **startTransition**: Mark state updates as non-urgent
+
+```jsx
+import { startTransition } from "react";
+
+// Urgent update - handled immediately
+setInputValue(input);
+
+// Non-urgent update - can be interrupted
+startTransition(() => {
+  setSearchResults(searchQuery);
+});
+```
+
+2. **useDeferredValue**: Create a deferred version of a value
+
+```jsx
+const deferredQuery = useDeferredValue(query);
+```
+
+3. **useTransition**: Track pending state of a transition
+
+```jsx
+const [isPending, startTransition] = useTransition();
+```
+
+Understanding these core concepts provides a solid foundation for mastering React and building efficient, maintainable applications.
+
