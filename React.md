@@ -1004,12 +1004,6 @@ Secondary.args = {
 - Component development in isolation before integration
 
 
-  # CodeAutomation
-
-# Core React Concepts
-
-This section covers fundamental React concepts that are essential for understanding how React works under the hood.
-
 ## Virtual DOM
 
 The Virtual DOM is a lightweight JavaScript representation of the actual DOM. React uses this abstraction to minimize expensive DOM operations and improve performance.
