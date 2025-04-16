@@ -226,6 +226,31 @@ export default function ReviewDetails({params}){
 - we can create a group layouts for the group routes so that will not affect other urls and ui 
 - Reference [`https://www.youtube.com/watch?v=V5GKwuzKQV0&list=PLC3y8-rFHvwjOKd6gdf4QtV1uYNiQnruI&index=16`]
 
+### Routing Metadata:
+- we can configure the proper SEO 
+- we can define the metadata for each page in the application so this makes more visibility on SEO
+- there are two ways to include the metadata 
+  1. layout.jsx
+  2. page.jsx
+- export static metadata object
+    - will create this in every page.jsx file
+    - ```javascript
+      export const metadata={
+        title:"Next App",
+        description:"About Next"
+      }
+      ```
+- export dynamic generate metadata object
+    - 
+    - ```javascript
+      export const metadata={
+        title:"Next App",
+        description:"About Next"
+      }
+      ```
+
+
+
 
 
 
